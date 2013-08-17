@@ -23,3 +23,5 @@ Simple redirection from pages or posts with an easy to use menu.
 == Screenshots ==
 
 1. Use the meta box to add or edit permalinks
+2. Easily choose existing content with a popup menu
+3. Link to a custom URL, existing content, or disable redirection
