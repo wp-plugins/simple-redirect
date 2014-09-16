@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: Simple Redirect
- * Version: 4.0.1
+ * Version: 4.0.2
  * Description: Easily redirect any post or page to another page with a dropdown menu or by manually typing in a URL. This plugin also changes permalinks and menus to point directly to the new location of the redirect - this prevents bots from getting a redirect and helps boost your SEO.
  * Author: Get on Social
  * Contributors: Get on Social, khromov
@@ -19,6 +19,9 @@ class GosSimpleRedirect
 		var $title = 'Simple Redirect';
 		var $context = 'side';
 		var $priority = 'default';
+
+		// used to prevent internal recursion
+		var $looking_up_link = false;
 
 		function __construct()
 		{
@@ -46,6 +49,7 @@ class GosSimpleRedirect
 			// for the actual redirect
 			add_action('template_redirect',array($this,'template_redirect'), 10 );
 
+
 			// rewrite links to 301'd pages preemptively
 			add_filter('post_link',array($this,'post_link'),20,2);
 			add_filter('post_type_link',array($this,'post_link'),20,2);
@@ -56,6 +60,8 @@ class GosSimpleRedirect
 			// but /about/ just redirects to /about/about-us/ - the menu link is rewritten to
 			// prevent an extra 301 "hop"
 			add_filter('wp_nav_menu_objects',array($this,'wp_nav_menu_objects'));
+
+
 
 		}
 
@@ -84,8 +90,12 @@ class GosSimpleRedirect
 		function post_link($link)
 		{
 
-			global $post;
+			// used to prevent internal recursion
+			// special thanks to @khromov for describing a situation where this
+			// could cause errors
+			if( $this->looking_up_link ){ return $link; }
 
+			global $post;
 
 			if(!empty($post->ID))
 			{
@@ -123,6 +133,7 @@ class GosSimpleRedirect
 		function get_redirect_info($post_id)
 		{
 
+			$this->looking_up_link = true;
 			$redirect_info = array();
 			$redirect = get_post_meta( $post_id, $this->namespace, true );
 			if(!empty($redirect['type']))
@@ -150,6 +161,8 @@ class GosSimpleRedirect
 					break;
 				}
 			}
+
+			$this->looking_up_link = false;
 			return $redirect_info;
 		}
 

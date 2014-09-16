@@ -3,7 +3,7 @@ Contributors: Get on Social
 Tags: redirect, redirects, headers, posts, redirection, simple, easy, SEO, 301
 Requires at least: 2.5
 Tested up to: 4.0
-Stable tag: 4.0.1
+Stable tag: 4.0.2
 
 Easily redirect any post or page to another page with a dropdown menu or by manually typing in a URL. Check out the screenshots. This plugin also changes permalinks and menus to point directly to the new location of the redirect - this prevents bots from getting a redirect and helps boost your SEO.
 
