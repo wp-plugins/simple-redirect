@@ -1,9 +1,10 @@
 <?php
 /*
  * Plugin Name: Simple Redirect
- * Version: 3.0.1
+ * Version: 4.0.1
  * Description: Easily redirect any post or page to another page with a dropdown menu or by manually typing in a URL. This plugin also changes permalinks and menus to point directly to the new location of the redirect - this prevents bots from getting a redirect and helps boost your SEO.
  * Author: Get on Social
+ * Contributors: Get on Social, khromov
  * Author URI: http://www.getonsocial.com/?simpleredirect
  * License: GPL v3
 
@@ -16,30 +17,45 @@ class GosSimpleRedirect
 
 		var $namespace = 'gos_simple_redirect';
 		var $title = 'Simple Redirect';
-		var $postTypes = array();
 		var $context = 'side';
 		var $priority = 'default';
 
 		function __construct()
 		{
 
-			$this->postTypes = get_post_types();
+			// special thanks to @khromov for the register_hooks improvement
+			add_action('init', array($this, 'register_hooks'));
+
+		}
+
+		function register_hooks()
+		{
+
+
+			// hooks for loading the meta boxes on the post page
 			add_action( 'load-post.php', array($this,'load_post') );
 			add_action( 'load-post-new.php', array($this,'load_post') );
 
+			// javascript for the footer of creating new posts and editing posts
 			add_action( 'admin_footer-post-new.php', array($this,'footerjs'), 9999 );
 			add_action( 'admin_footer-post.php',     array($this,'footerjs'), 9999 );
 
-
+			// ajax calls
 			add_action( 'wp_ajax_'.$this->namespace, array($this,'wp_ajax'), 9999 );
+
+			// for the actual redirect
 			add_action('template_redirect',array($this,'template_redirect'), 10 );
 
-
+			// rewrite links to 301'd pages preemptively
 			add_filter('post_link',array($this,'post_link'),20,2);
 			add_filter('post_type_link',array($this,'post_link'),20,2);
 
+			// rewrite nav menu links to 301'd pages preemptively.
+			// i.e. when people create a top-level menu item to go to a subpage, such
+			// as when you have a structure like /about/ and /about/about-us/ and /about/contact/
+			// but /about/ just redirects to /about/about-us/ - the menu link is rewritten to
+			// prevent an extra 301 "hop"
 			add_filter('wp_nav_menu_objects',array($this,'wp_nav_menu_objects'));
-
 
 		}
 
@@ -163,7 +179,11 @@ class GosSimpleRedirect
 		function add_meta_boxes()
 		{
 
-			foreach($this->postTypes as $postType)
+			// allow use of a filter to modify the enabled post types
+			// eg: add_filter('gos_simple_redirect_enabled_post_types', ... )
+			$enabledPostTypes = apply_filters( 'gos_simple_redirect_enabled_post_types', get_post_types() );
+
+			foreach($enabledPostTypes as $postType)
 			{
 				add_meta_box(
 					$this->namespace,
