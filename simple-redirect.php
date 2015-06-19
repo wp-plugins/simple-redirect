@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: Simple Redirect
- * Version: 4.0.3
+ * Version: 4.0.4
  * Description: Easily redirect any post or page to another page with a dropdown menu or by manually typing in a URL. This plugin also changes permalinks and menus to point directly to the new location of the redirect - this prevents bots from getting a redirect and helps boost your SEO.
  * Author: Get on Social
  * Contributors: Get on Social, khromov
